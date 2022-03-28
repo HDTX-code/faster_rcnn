@@ -111,8 +111,8 @@ if __name__ == "__main__":
     # ----------------------------------------------------#
     #   获得图片路径和标签
     # ----------------------------------------------------#
-    train_annotation_path = '../2007_train.txt'
-    val_annotation_path = '../2007_val.txt'
+    train_annotation_path = '../input/2007txt/2007_train.txt'
+    val_annotation_path = '../input/2007txt/2007_val.txt'
 
     # ----------------------------------------------------#
     #   获取classes和anchor
