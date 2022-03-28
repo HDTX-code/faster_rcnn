@@ -19,9 +19,6 @@ def fit_one_epoch(model, train_util, loss_history, optimizer, epoch, epoch_step,
             if iteration >= epoch_step:
                 break
             images, boxes, labels = batch[0], batch[1], batch[2]
-            print(images)
-            print(boxes)
-            print(labels)
             with torch.no_grad():
                 images = torch.from_numpy(images).type(torch.FloatTensor)
                 if cuda:
