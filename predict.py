@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #   'fps'表示测试fps，使用的图片是img里面的street.jpg，详情查看下方注释。
     #   'dir_predict'表示遍历文件夹进行检测并保存。默认遍历img文件夹，保存img_out文件夹，详情查看下方注释。
     # ----------------------------------------------------------------------------------------------------------#
-    mode = "predict"
+    mode = "dir_predict"
     # -------------------------------------------------------------------------#
     #   crop指定了是否在单张图片预测后对目标进行截取
     #   crop仅在mode='predict'时有效
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     #   dir_save_path指定了检测完图片的保存路径
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     # -------------------------------------------------------------------------#
-    dir_origin_path = "img/"
-    dir_save_path = "img_out/"
+    dir_origin_path = "../input/happy-whale-and-dolphin/train_images"
+    dir_save_path = "../input/happy-whale-and-dolphin/train_images"
 
     if mode == "predict":
         '''
@@ -118,7 +118,7 @@ if __name__ == "__main__":
                     ('.bmp', '.dib', '.png', '.jpg', '.jpeg', '.pbm', '.pgm', '.ppm', '.tif', '.tiff')):
                 image_path = os.path.join(dir_origin_path, img_name)
                 image = Image.open(image_path)
-                r_image = frcnn.detect_image(image)
+                r_image = frcnn.detect_image(image, crop=True)
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
                 r_image.save(os.path.join(dir_save_path, img_name.replace(".jpg", ".png")), quality=95, subsampling=0)
