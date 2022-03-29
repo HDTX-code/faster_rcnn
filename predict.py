@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 image_path = os.path.join(dir_origin_path, img_name)
                 image = Image.open(image_path)
                 r_image = frcnn.detect_image(image, crop=True)
-                r_image = np.resize(r_image, (512, 512))
+                r_image.resize((512, 512))
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
                 r_image.save(os.path.join(dir_save_path, img_name.replace(".jpg", ".png")), quality=95, subsampling=0)
