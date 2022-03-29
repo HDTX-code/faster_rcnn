@@ -152,8 +152,6 @@ if __name__ == "__main__":
     num_train = len(train_lines)
     num_val = len(val_lines)
 
-    os.makedirs('./logs')
-
     # ------------------------------------------------------#
     #   主干特征提取网络特征通用，冻结训练可以加快训练速度
     #   也可以在训练初期防止权值被破坏。
@@ -200,7 +198,7 @@ if __name__ == "__main__":
 
         for epoch in range(start_epoch, end_epoch):
             fit_one_epoch(model, train_util, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val,
-                          end_epoch, Cuda)
+                          end_epoch, Cuda, Freeze_Epoch)
             lr_scheduler.step()
 
     if True:
@@ -241,5 +239,5 @@ if __name__ == "__main__":
 
         for epoch in range(start_epoch, end_epoch):
             fit_one_epoch(model, train_util, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val,
-                          end_epoch, Cuda)
+                          end_epoch, Cuda, Freeze_Epoch)
             lr_scheduler.step()
