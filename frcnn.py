@@ -167,24 +167,27 @@ class FRCNN(object):
         #   是否进行目标的裁剪,放回最大的那一个
         # ---------------------------------------------------------#
         if crop:
-            Ismax = np.zeros(top_label.shape)
-            for i, c in list(enumerate(top_label)):
-                top, left, bottom, right = top_boxes[i]
+            if len(top_label) > 0:
+                Ismax = np.zeros(top_label.shape)
+                for i, c in list(enumerate(top_label)):
+                    top, left, bottom, right = top_boxes[i]
+                    top = max(0, np.floor(top).astype('int32'))
+                    left = max(0, np.floor(left).astype('int32'))
+                    bottom = min(image.size[1], np.floor(bottom).astype('int32'))
+                    right = min(image.size[0], np.floor(right).astype('int32'))
+                    Ismax[i] = abs(bottom - top) * abs(right - left)
+                top, left, bottom, right = top_boxes[np.argsort(-Ismax)[0]]
                 top = max(0, np.floor(top).astype('int32'))
                 left = max(0, np.floor(left).astype('int32'))
                 bottom = min(image.size[1], np.floor(bottom).astype('int32'))
                 right = min(image.size[0], np.floor(right).astype('int32'))
-                Ismax[i] = abs(bottom - top) * abs(right - left)
-            top, left, bottom, right = top_boxes[np.argsort(-Ismax)[0]]
-            top = max(0, np.floor(top).astype('int32'))
-            left = max(0, np.floor(left).astype('int32'))
-            bottom = min(image.size[1], np.floor(bottom).astype('int32'))
-            right = min(image.size[0], np.floor(right).astype('int32'))
-            # dir_save_path = "img_crop"
-            # if not os.path.exists(dir_save_path):
-            #     os.makedirs(dir_save_path)
-            crop_image = image.crop([left, top, right, bottom])
-            return crop_image
+                # dir_save_path = "img_crop"
+                # if not os.path.exists(dir_save_path):
+                #     os.makedirs(dir_save_path)
+                crop_image = image.crop([left, top, right, bottom])
+                return crop_image
+            else:
+                return image
             # crop_image.save(os.path.join(dir_save_path, "crop_" + str(i) + ".png"), quality=95, subsampling=0)
             # print("save crop_" + str(i) + ".png to " + dir_save_path)
         # ---------------------------------------------------------#
