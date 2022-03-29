@@ -164,55 +164,64 @@ class FRCNN(object):
         thickness = int(max((image.size[0] + image.size[1]) // np.mean(input_shape), 1))
 
         # ---------------------------------------------------------#
-        #   是否进行目标的裁剪
+        #   是否进行目标的裁剪,放回最大的那一个
         # ---------------------------------------------------------#
         if crop:
+            Ismax = np.zeros(top_boxes.shape)
             for i, c in list(enumerate(top_label)):
                 top, left, bottom, right = top_boxes[i]
                 top = max(0, np.floor(top).astype('int32'))
                 left = max(0, np.floor(left).astype('int32'))
                 bottom = min(image.size[1], np.floor(bottom).astype('int32'))
                 right = min(image.size[0], np.floor(right).astype('int32'))
+                Ismax[i] = abs(bottom - top) * abs(right - left)
 
-                dir_save_path = "img_crop"
-                if not os.path.exists(dir_save_path):
-                    os.makedirs(dir_save_path)
-                crop_image = image.crop([left, top, right, bottom])
-                crop_image.save(os.path.join(dir_save_path, "crop_" + str(i) + ".png"), quality=95, subsampling=0)
-                print("save crop_" + str(i) + ".png to " + dir_save_path)
-        # ---------------------------------------------------------#
-        #   图像绘制
-        # ---------------------------------------------------------#
-        for i, c in list(enumerate(top_label)):
-            predicted_class = self.class_names[int(c)]
-            box = top_boxes[i]
-            score = top_conf[i]
-
-            top, left, bottom, right = box
-
+            top, left, bottom, right = top_boxes[np.sort(-Ismax)[0]]
             top = max(0, np.floor(top).astype('int32'))
             left = max(0, np.floor(left).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom).astype('int32'))
             right = min(image.size[0], np.floor(right).astype('int32'))
+            # dir_save_path = "img_crop"
+            # if not os.path.exists(dir_save_path):
+            #     os.makedirs(dir_save_path)
+            crop_image = image.crop([left, top, right, bottom])
+            return crop_image
+            # crop_image.save(os.path.join(dir_save_path, "crop_" + str(i) + ".png"), quality=95, subsampling=0)
+            # print("save crop_" + str(i) + ".png to " + dir_save_path)
+        # ---------------------------------------------------------#
+        #   图像绘制
+        # ---------------------------------------------------------#
+        else:
+            for i, c in list(enumerate(top_label)):
+                predicted_class = self.class_names[int(c)]
+                box = top_boxes[i]
+                score = top_conf[i]
 
-            label = '{} {:.2f}'.format(predicted_class, score)
-            draw = ImageDraw.Draw(image)
-            label_size = draw.textsize(label, font)
-            label = label.encode('utf-8')
-            # print(label, top, left, bottom, right)
+                top, left, bottom, right = box
 
-            if top - label_size[1] >= 0:
-                text_origin = np.array([left, top - label_size[1]])
-            else:
-                text_origin = np.array([left, top + 1])
+                top = max(0, np.floor(top).astype('int32'))
+                left = max(0, np.floor(left).astype('int32'))
+                bottom = min(image.size[1], np.floor(bottom).astype('int32'))
+                right = min(image.size[0], np.floor(right).astype('int32'))
 
-            for i in range(thickness):
-                draw.rectangle([left + i, top + i, right - i, bottom - i], outline=self.colors[c])
-            draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=self.colors[c])
-            draw.text(text_origin, str(label, 'UTF-8'), fill=(0, 0, 0), font=font)
-            del draw
+                label = '{} {:.2f}'.format(predicted_class, score)
+                draw = ImageDraw.Draw(image)
+                label_size = draw.textsize(label, font)
+                label = label.encode('utf-8')
+                # print(label, top, left, bottom, right)
 
-        return image
+                if top - label_size[1] >= 0:
+                    text_origin = np.array([left, top - label_size[1]])
+                else:
+                    text_origin = np.array([left, top + 1])
+
+                for i in range(thickness):
+                    draw.rectangle([left + i, top + i, right - i, bottom - i], outline=self.colors[c])
+                draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=self.colors[c])
+                draw.text(text_origin, str(label, 'UTF-8'), fill=(0, 0, 0), font=font)
+                del draw
+
+            return image
 
     def get_FPS(self, image, test_interval):
         # ---------------------------------------------------#
