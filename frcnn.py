@@ -177,10 +177,10 @@ class FRCNN(object):
                     right = min(image.size[0], np.floor(right).astype('int32'))
                     Ismax[i] = abs(bottom - top) * abs(right - left)
                 top, left, bottom, right = top_boxes[np.argsort(-Ismax)[0]]
-                top = max(0, np.floor(top).astype('int32'))
-                left = max(0, np.floor(left).astype('int32'))
-                bottom = min(image.size[1], np.floor(bottom).astype('int32'))
-                right = min(image.size[0], np.floor(right).astype('int32'))
+                top = max(0, np.floor(top*0.95).astype('int32'))
+                left = max(0, np.floor(left*0.95).astype('int32'))
+                bottom = min(image.size[1], np.floor(bottom*1.05).astype('int32'))
+                right = min(image.size[0], np.floor(right*1.05).astype('int32'))
                 # dir_save_path = "img_crop"
                 # if not os.path.exists(dir_save_path):
                 #     os.makedirs(dir_save_path)
