@@ -169,8 +169,8 @@ class FRCNN(object):
         if crop:
             Ismax = np.zeros(top_boxes.shape)
             for i, c in list(enumerate(top_label)):
-                print(i)
                 top, left, bottom, right = top_boxes[i]
+                print(top, left, bottom, right)
                 top = max(0, np.floor(top).astype('int32'))
                 left = max(0, np.floor(left).astype('int32'))
                 bottom = min(image.size[1], np.floor(bottom).astype('int32'))
