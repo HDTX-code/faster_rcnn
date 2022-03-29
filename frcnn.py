@@ -176,7 +176,7 @@ class FRCNN(object):
                 right = min(image.size[0], np.floor(right).astype('int32'))
                 Ismax[i] = abs(bottom - top) * abs(right - left)
 
-            top, left, bottom, right = top_boxes[np.sort(-Ismax)[0]]
+            top, left, bottom, right = top_boxes[np.argsort(-Ismax)[0]]
             top = max(0, np.floor(top).astype('int32'))
             left = max(0, np.floor(left).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom).astype('int32'))
