@@ -159,7 +159,7 @@ class FRCNN(object):
         # ---------------------------------------------------------#
         #   设置字体与边框厚度
         # ---------------------------------------------------------#
-        font = ImageFont.truetype(font='model_data/simhei.ttf',
+        font = ImageFont.truetype(font='../input/faster-rcnn/simhei.ttf',
                                   size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = int(max((image.size[0] + image.size[1]) // np.mean(input_shape), 1))
 
