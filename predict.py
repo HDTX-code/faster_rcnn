@@ -122,7 +122,7 @@ if __name__ == "__main__":
                 # r_image.resize((600, 600))
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
-                r_image.resize((800, 800)).save(os.path.join(dir_save_path, img_name), quality=95, subsampling=0)
+                r_image.resize((224, 224)).save(os.path.join(dir_save_path, img_name), quality=95, subsampling=0)
 
     else:
         raise AssertionError("Please specify the correct mode: 'predict', 'video', 'fps' or 'dir_predict'.")
