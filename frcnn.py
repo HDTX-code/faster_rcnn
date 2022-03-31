@@ -168,19 +168,25 @@ class FRCNN(object):
         # ---------------------------------------------------------#
         if crop:
             if len(top_label) > 0:
-                Ismax = np.zeros(top_label.shape)
+                Top = np.zeros(top_label.shape)
+                Left = np.zeros(top_label.shape)
+                Bottom = np.zeros(top_label.shape)
+                Right = np.zeros(top_label.shape)
                 for i, c in list(enumerate(top_label)):
                     top, left, bottom, right = top_boxes[i]
-                    top = max(0, np.floor(top).astype('int32'))
-                    left = max(0, np.floor(left).astype('int32'))
-                    bottom = min(image.size[1], np.floor(bottom).astype('int32'))
-                    right = min(image.size[0], np.floor(right).astype('int32'))
-                    Ismax[i] = abs(bottom - top) * abs(right - left)
-                top, left, bottom, right = top_boxes[np.argsort(-Ismax)[0]]
-                top = max(0, np.floor(top*0.95).astype('int32'))
-                left = max(0, np.floor(left*0.95).astype('int32'))
-                bottom = min(image.size[1], np.floor(bottom*1.05).astype('int32'))
-                right = min(image.size[0], np.floor(right*1.05).astype('int32'))
+                    top = max(0, np.floor(top*0.95).astype('int32'))
+                    left = max(0, np.floor(left*0.95).astype('int32'))
+                    bottom = min(image.size[1], np.floor(bottom*1.05).astype('int32'))
+                    right = min(image.size[0], np.floor(right*1.05).astype('int32'))
+                    Top[i] = top
+                    Left[i] = left
+                    Bottom[i] = bottom
+                    Right[i] = right
+
+                top = min(Top)
+                left = min(Left)
+                bottom = max(Bottom)
+                right = max(Right)
                 # dir_save_path = "img_crop"
                 # if not os.path.exists(dir_save_path):
                 #     os.makedirs(dir_save_path)
