@@ -30,8 +30,8 @@ class FRCNN(object):
         #   验证集损失较低不代表mAP较高，仅代表该权值在验证集上泛化性能较好。
         #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
         # --------------------------------------------------------------------------#
-        "model_path": r"../input/faster-rcnn-eopth-1/ep067-loss0.375-val_loss0.558.pth",
-        "classes_path": '../input/faster-rcnn/classes.txt',
+        "model_path": r"../input/faster-rcnn-weigts/ep079-loss0.327-val_loss0.582.pth",
+        "classes_path": '../input/faster-rcnn-need/classes.txt',
         # ---------------------------------------------------------------------#
         #   网络的主干特征提取网络，resnet50或者vgg
         # ---------------------------------------------------------------------#
@@ -47,7 +47,7 @@ class FRCNN(object):
         # ---------------------------------------------------------------------#
         #   用于指定先验框的大小
         # ---------------------------------------------------------------------#
-        'anchors_size': [8, 16, 32],
+        'anchors_size': [2, 16, 32],
         # -------------------------------#
         #   是否使用Cuda
         #   没有GPU可以设置成False
@@ -159,7 +159,7 @@ class FRCNN(object):
         # ---------------------------------------------------------#
         #   设置字体与边框厚度
         # ---------------------------------------------------------#
-        font = ImageFont.truetype(font='../input/faster-rcnn/simhei.ttf',
+        font = ImageFont.truetype(font='../input/faster-rcnn-need/simhei.ttf',
                                   size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = int(max((image.size[0] + image.size[1]) // np.mean(input_shape), 1))
 
