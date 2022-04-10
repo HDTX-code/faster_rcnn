@@ -3,6 +3,7 @@
 #   整合到了一个py文件中，通过指定mode进行模式的修改。
 # ----------------------------------------------------#
 from __init__ import *
+from utils.utils import letterbox_image
 
 if __name__ == "__main__":
     frcnn = FRCNN()
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     #   dir_save_path指定了检测完图片的保存路径
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     # -------------------------------------------------------------------------#
-    dir_origin_path = "../input/happy-whale-and-dolphin/test_images"
+    dir_origin_path = "../input/happy-whale-and-dolphin/train_images"
     dir_save_path = "./"
 
     if mode == "predict":
@@ -122,7 +123,8 @@ if __name__ == "__main__":
                 # r_image.resize((600, 600))
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
-                r_image.resize((224, 224)).save(os.path.join(dir_save_path, img_name), quality=95, subsampling=0)
+                r_image_new = letterbox_image(r_image, (224, 224))
+                r_image_new.save(os.path.join(dir_save_path, img_name), quality=95, subsampling=0)
 
     else:
         raise AssertionError("Please specify the correct mode: 'predict', 'video', 'fps' or 'dir_predict'.")
