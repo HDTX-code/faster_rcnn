@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 # r_image.resize((600, 600))
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
-                r_image_new = letterbox_image(r_image, (224, 224))
+                r_image_new = letterbox_image(r_image, (512, 512))
                 r_image_new.save(os.path.join(dir_save_path, img_name), quality=95, subsampling=0)
 
     else:
