@@ -259,9 +259,9 @@ if __name__ == '__main__':
     parser.add_argument('--anchors_size', nargs='+', type=float, default=[8, 16, 32],
                         help='用于设定先验框的大小，每个特征点均存在9个先验框。')
     parser.add_argument('--eval_period', type=int, default=5, help="eval_period")
-    parser.add_argument('--eval_flag', default=False, action='store_true', help="是否预训练")
+    parser.add_argument('--eval_flag', default=False, action='store_true', help="是否在训练过程中检测")
     parser.add_argument('--pretrained', default=False, action='store_true', help="是否预训练")
-    parser.add_argument('--fp16', default=False, action='store_true', help="是否预训练")
+    parser.add_argument('--fp16', default=False, action='store_true', help="是否用fp16")
     args = parser.parse_args()
 
     go_train(args)
