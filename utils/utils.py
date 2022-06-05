@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from PIL import Image
 
 
@@ -6,6 +7,9 @@ from PIL import Image
 #   将图像转换成RGB图像，防止灰度图在预测时报错。
 #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
 # ---------------------------------------------------------#
+from nets.frcnn import FasterRCNN
+
+
 def cvtColor(image):
     if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
         return image
@@ -42,9 +46,55 @@ def get_lr(optimizer):
         return param_group['lr']
 
 
+# ---------------------------------------------------#
+#   生成模型
+# ---------------------------------------------------#
+def get_model(backbone, model_path, anchors_size, num_classes, pretrained):
+    model = FasterRCNN(num_classes, anchor_scales=anchors_size, backbone=backbone, pretrained=pretrained)
+    if model_path != "":
+        model = load_model(model, model_path)
+    return model
+
+
+def load_model(model, model_path):
+    print('Loading weights into state dict...')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_dict = model.state_dict()
+    pretrained_dict = torch.load(model_path, map_location=device)
+    a = {}
+    no_load = 0
+    for k, v in pretrained_dict.items():
+        try:
+            if np.shape(model_dict[k]) == np.shape(v):
+                a[k] = v
+            else:
+                no_load += 1
+        except:
+            no_load = -1
+            pass
+    model_dict.update(a)
+    model.load_state_dict(model_dict)
+    if no_load == -1:
+        print("模型加载出错")
+    else:
+        print("No_load: {}".format(no_load))
+        print('Finished!')
+    return model
+
+
 def preprocess_input(image):
     image /= 255.0
     return image
+
+
+def show_config(**kwargs):
+    print('Configurations:')
+    print('-' * 70)
+    print('|%25s | %40s|' % ('keys', 'values'))
+    print('-' * 70)
+    for key, value in kwargs.items():
+        print('|%25s | %40s|' % (str(key), str(value)))
+    print('-' * 70)
 
 
 def get_new_img_size(height, width, img_min_side=600):
@@ -58,16 +108,3 @@ def get_new_img_size(height, width, img_min_side=600):
         resized_height = int(img_min_side)
 
     return resized_height, resized_width
-
-
-def letterbox_image(image, size):
-    iw, ih = image.size
-    w, h = size
-    scale = min(w / iw, h / ih)
-    nw = int(iw * scale)
-    nh = int(ih * scale)
-
-    image = image.resize((nw, nh), Image.BICUBIC)
-    new_image = Image.new('RGB', size, (128, 128, 128))
-    new_image.paste(image, ((w - nw) // 2, (h - nh) // 2))
-    return new_image
