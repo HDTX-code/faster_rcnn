@@ -199,7 +199,7 @@ def go_train():
                 lr_limit_max = 1e-4 if args.optimizer_type == 'adam' else 5e-2
                 lr_limit_min = 1e-4 if args.optimizer_type == 'adam' else 5e-4
                 Init_lr_fit = min(max(batch_size / nbs * args.Init_lr, lr_limit_min), lr_limit_max)
-                Min_lr_fit = min(max(batch_size / nbs * args.Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+                Min_lr_fit = min(max(batch_size / nbs * args.Init_lr*0.01, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
                 # ---------------------------------------#
                 #   获得学习率下降的公式
                 # ---------------------------------------#
