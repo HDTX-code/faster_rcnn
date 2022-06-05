@@ -15,7 +15,7 @@ from utils.utils import get_classes, show_config, get_model
 from utils.utils_fit import fit_one_epoch
 
 
-def go_train(args):
+def go_train():
     # 保存文件夹
     time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d_%H_%M_%S')
     log_dir = os.path.join(args.save_dir, "loss_" + str(time_str))
@@ -263,4 +263,4 @@ if __name__ == '__main__':
     parser.add_argument('--fp16', default=False, action='store_true', help="是否用fp16")
     args = parser.parse_args()
 
-    go_train(args)
+    go_train()
