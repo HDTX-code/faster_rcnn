@@ -239,7 +239,6 @@ if __name__ == '__main__':
     parser.add_argument('--classes_path', type=str, default="./model_data/classes.txt", help='种类数量')
     parser.add_argument('--save_dir', type=str, default="./weights", help='存储文件夹位置')
     parser.add_argument('--save_period', type=int, default=3, help='存储间隔')
-    parser.add_argument('--log_dir', type=str, default="./logs", help='存储文件夹位置')
     parser.add_argument('--model_path', type=str, default="", help='模型参数位置')
     parser.add_argument('--w', type=int, default=600, help='宽')
     parser.add_argument('--h', type=int, default=600, help='高')
