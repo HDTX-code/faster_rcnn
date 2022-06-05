@@ -132,7 +132,7 @@ def go_train():
         # -------------------------------------------------------------------#
         #   如果不冻结训练的话，直接设置batch_size为Unfreeze_batch_size
         # -------------------------------------------------------------------#
-        batch_size = args.Freeze_batch_size if args.Freeze_Epoch == 0 else args.Unfreeze_batch_size
+        batch_size = args.Freeze_batch_size if args.Freeze_Epoch != 0 else args.Unfreeze_batch_size
 
         # -------------------------------------------------------------------#
         #   判断当前batch_size，自适应调整学习率
