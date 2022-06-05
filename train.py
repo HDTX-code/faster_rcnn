@@ -130,7 +130,7 @@ def go_train():
         # -------------------------------------------------------------------#
         #   如果不冻结训练的话，直接设置batch_size为Unfreeze_batch_size
         # -------------------------------------------------------------------#
-        batch_size = args.Freeze_batch_size if args.Freeze_Epoch != 0 else args.Unfreeze_batch_size
+        batch_size = args.Freeze_batch_size if args.Freeze_Epoch == 0 else args.Unfreeze_batch_size
 
         # -------------------------------------------------------------------#
         #   判断当前batch_size，自适应调整学习率
@@ -182,12 +182,12 @@ def go_train():
         # ---------------------------------------#
         #   开始模型训练
         # ---------------------------------------#
-        for epoch in range(args.Init_Epoch, args.UnFreeze_Epoch):
+        for epoch in range(args.Init_Epoch, args.UnFreeze_Epoch + args.Freeze_Epoch):
             # ---------------------------------------#
             #   如果模型有冻结学习部分
             #   则解冻，并设置参数
             # ---------------------------------------#
-            if epoch >= args.Freeze_Epoch and not UnFreeze_flag and args.Freeze_Train:
+            if epoch >= args.Freeze_Epoch and not UnFreeze_flag:
                 batch_size = args.Unfreeze_batch_size
 
                 # -------------------------------------------------------------------#
@@ -228,7 +228,8 @@ def go_train():
             set_optimizer_lr(optimizer, lr_scheduler_func, epoch)
 
             fit_one_epoch(model, train_util, loss_history, eval_callback, optimizer, epoch, epoch_step, epoch_step_val,
-                          gen, gen_val, args.UnFreeze_Epoch, Cuda, args.fp16, scaler, args.save_period, args.save_dir)
+                          gen, gen_val, args.UnFreeze_Epoch + args.Freeze_Epoch, Cuda, args.fp16, scaler,
+                          args.save_period, args.save_dir)
 
         loss_history.writer.close()
 
@@ -236,7 +237,7 @@ def go_train():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='训练参数设置')
     parser.add_argument('--backbone', type=str, default='resnet50', help='特征网络选择，默认resnet50')
-    parser.add_argument('--classes_path', type=str, default="./model_data/classes.txt", help='种类数量')
+    parser.add_argument('--classes_path', type=str, default="./model_data/voc_classes.txt", help='种类数量')
     parser.add_argument('--save_dir', type=str, default="./weights", help='存储文件夹位置')
     parser.add_argument('--save_period', type=int, default=3, help='存储间隔')
     parser.add_argument('--model_path', type=str, default="", help='模型参数位置')
