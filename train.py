@@ -20,6 +20,18 @@ def go_train():
     time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d_%H_%M_%S')
     log_dir = os.path.join(args.save_dir, "loss_" + str(time_str))
 
+    # 检查保存文件夹是否存在
+    # if not os.path.exists(args.save_dir):
+    #     os.makedirs(args.save_dir)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    # 训练设备
+    Cuda = torch.cuda.is_available()
+    # os.environ["CUDA_VISIBLE_DEVICES"] = str(args.GPU)
+    torch.cuda.set_device(args.GPU)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     # 生成dataset
     with open(args.train_txt_path, encoding='utf-8') as f:
         train_lines = f.readlines()
@@ -47,7 +59,7 @@ def go_train():
         momentum=args.momentum,
         lr_decay_type=args.lr_decay_type,
         save_period=args.save_period,
-        save_dir=args.save_dir,
+        save_dir=log_dir,
         num_workers=args.num_workers,
         num_train=num_train,
         num_val=num_val,
@@ -55,26 +67,19 @@ def go_train():
         pretrained=args.pretrained,
         anchors_size=args.anchors_size,
         eval_flag=args.eval_flag,
-        eval_period=args.eval_period
+        eval_period=args.eval_period,
+        Cuda=Cuda,
+        GPU=torch.cuda.current_device()
     )
-
-    # 训练设备
-    Cuda = torch.cuda.is_available()
-
-    # 检查保存文件夹是否存在
-    if not os.path.exists(args.save_dir):
-        os.makedirs(args.save_dir)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
 
     # 获取classes和anchor
     class_names, num_classes = get_classes(args.classes_path)
 
     # 加载模型
-    model = get_model(args.backbone, args.model_path, args.anchors_size, num_classes, args.pretrained).train()
+    model = get_model(args.backbone, args.model_path, args.anchors_size, num_classes, args.pretrained).to(device).train()
 
     # 生成loss_history
-    loss_history = LossHistory(args.save_dir, model, input_shape=[args.h, args.w])
+    loss_history = LossHistory(log_dir, model, input_shape=[args.h, args.w])
 
     # ---------------------------------------------------------#
     #   总训练世代指的是遍历全部数据的总次数
@@ -102,11 +107,11 @@ def go_train():
     else:
         scaler = None
 
-    model_train = model.train()
-    if Cuda:
-        model_train = torch.nn.DataParallel(model_train)
-        cudnn.benchmark = True
-        model_train = model_train.cuda()
+    model_train = model.train().to(device)
+    # if Cuda:
+    #     model_train = torch.nn.DataParallel(model_train)
+    #     cudnn.benchmark = True
+    #     model_train = model_train.to(device)
 
     # ------------------------------------------------------#
     #   主干特征提取网络特征通用，冻结训练可以加快训练速度
@@ -199,7 +204,7 @@ def go_train():
                 lr_limit_max = 1e-4 if args.optimizer_type == 'adam' else 5e-2
                 lr_limit_min = 1e-4 if args.optimizer_type == 'adam' else 5e-4
                 Init_lr_fit = min(max(batch_size / nbs * args.Init_lr, lr_limit_min), lr_limit_max)
-                Min_lr_fit = min(max(batch_size / nbs * args.Init_lr*0.01, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+                Min_lr_fit = min(max(batch_size / nbs * args.Init_lr * 0.01, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
                 # ---------------------------------------#
                 #   获得学习率下降的公式
                 # ---------------------------------------#
@@ -230,8 +235,8 @@ def go_train():
             set_optimizer_lr(optimizer, lr_scheduler_func, epoch)
 
             fit_one_epoch(model, train_util, loss_history, eval_callback, optimizer, epoch, epoch_step, epoch_step_val,
-                          gen, gen_val, args.UnFreeze_Epoch + args.Freeze_Epoch, Cuda, args.fp16, scaler,
-                          args.save_period, args.save_dir)
+                          gen, gen_val, args.UnFreeze_Epoch + args.Freeze_Epoch, args.fp16, scaler,
+                          args.save_period, log_dir, device)
 
         loss_history.writer.close()
 
@@ -242,21 +247,22 @@ if __name__ == '__main__':
     parser.add_argument('--classes_path', type=str, default="./model_data/voc_classes.txt", help='种类数量')
     parser.add_argument('--save_dir', type=str, default="./weights", help='存储文件夹位置')
     parser.add_argument('--save_period', type=int, default=3, help='存储间隔')
-    parser.add_argument('--model_path', type=str, default="", help='模型参数位置')
+    parser.add_argument('--model_path', type=str, default="weights/pre_train/resnet50-19c8e357.pth", help='模型参数位置')
     parser.add_argument('--w', type=int, default=600, help='宽')
     parser.add_argument('--h', type=int, default=600, help='高')
+    parser.add_argument('--GPU', type=int, default=5, help='GPU_ID')
     parser.add_argument('--train_txt_path', type=str, default="./2007_train.txt", help="训练csv")
     parser.add_argument('--val_txt_path', type=str, default="./2007_val.txt", help="验证csv")
     parser.add_argument('--optimizer_type', type=str, default='adam', help="优化器")
-    parser.add_argument('--Freeze_batch_size', type=int, default=18, help="冻结训练batch_size")
-    parser.add_argument('--Unfreeze_batch_size', type=int, default=8, help="解冻训练batch_size")
+    parser.add_argument('--Freeze_batch_size', type=int, default=36, help="冻结训练batch_size")
+    parser.add_argument('--Unfreeze_batch_size', type=int, default=14, help="解冻训练batch_size")
     parser.add_argument('--lr_decay_type', type=str, default='cos', help="使用到的学习率下降方式，可选的有'step','cos'")
-    parser.add_argument('--num_workers', type=int, default=2, help="num_workers")
+    parser.add_argument('--num_workers', type=int, default=24, help="num_workers")
     parser.add_argument('--Init_lr', type=float, default=1e-4, help="最大学习率")
     parser.add_argument('--momentum', type=float, default=0.9, help="优化器动量")
     parser.add_argument('--weight_decay', type=float, default=0, help="权值衰减，使用adam时建议为0")
-    parser.add_argument('--Freeze_Epoch', type=int, default=50, help="冻结训练轮次")
-    parser.add_argument('--UnFreeze_Epoch', type=int, default=8, help="解冻训练轮次")
+    parser.add_argument('--Freeze_Epoch', type=int, default=30, help="冻结训练轮次")
+    parser.add_argument('--UnFreeze_Epoch', type=int, default=60, help="解冻训练轮次")
     parser.add_argument('--Init_Epoch', type=int, default=0, help="开始训练轮次")
     parser.add_argument('--anchors_size', nargs='+', type=float, default=[8, 16, 32],
                         help='用于设定先验框的大小，每个特征点均存在9个先验框。')
